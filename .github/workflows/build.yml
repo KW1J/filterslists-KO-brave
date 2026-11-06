@@ -1,0 +1,65 @@
+name: build
+
+on:
+  schedule:
+    # every 6 hours (UTC). Upstream list has "! Expires: 1 day".
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'dist/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build Brave list
+        run: python3 scripts/build.py
+
+      - name: Unit tests (converter)
+        run: python3 -m unittest discover -s tests -v
+
+      # Optional but cheap: parse the built list with the same engine Brave ships.
+      - name: Ensure Rust toolchain
+        run: |
+          command -v cargo >/dev/null 2>&1 || {
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          }
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ci/brave_check/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('ci/brave_check/Cargo.lock') }}
+
+      - name: Validate with brave/adblock-rust
+        run: |
+          cd ci/brave_check
+          cargo build --release --locked
+          ./target/release/brave_check ../../dist/filterslists-KO-brave.txt 250
+
+      - name: Commit dist/ if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: update filterslists-KO (Brave) list'
+          file_pattern: dist/**
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
