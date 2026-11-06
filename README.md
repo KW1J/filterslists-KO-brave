@@ -1,3 +1,8 @@
+<p align="center">
+  <a href="README.md"><img src="https://img.shields.io/badge/lang-%ED%95%9C%EA%B5%AD%EC%96%B4-blue" alt="한국어"></a>
+  <a href="README.en.md"><img src="https://img.shields.io/badge/lang-English-red" alt="English"></a>
+</p>
+
 # filterslists-KO for Brave
 
 [`filterslists-KO`](https://github.com/FilteringDev/filterslists-KO)(한국어 광고·트래커 차단 필터 리스트)의
