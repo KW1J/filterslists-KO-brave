@@ -1,0 +1,12 @@
+[package]
+name = "brave_check"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+# Same parser version Brave ships (brave/adblock-rust), from crates.io.
+adblock = "0.13.5"
+
+[profile.release]
+opt-level = 1

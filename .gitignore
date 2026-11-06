@@ -1,0 +1,13 @@
+# macOS / editor noise
+.DS_Store
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+
+# Rust build artifacts
+ci/brave_check/target/
+
+# local scratch
+.cache/
